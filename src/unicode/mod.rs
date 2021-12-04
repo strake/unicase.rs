@@ -5,6 +5,7 @@ use core::hash::{Hash, Hasher};
 use self::map::lookup;
 mod map;
 
+/// Case Insensitive wrapper of Unicode strings.
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Unicode<S>(pub S);
 

@@ -2,13 +2,7 @@
 #![cfg_attr(test, deny(warnings))]
 #![doc(html_root_url = "https://docs.rs/unicase/2.6.0")]
 #![cfg_attr(feature = "nightly", feature(test))]
-#![cfg_attr(
-    all(
-        __unicase__core_and_alloc,
-        not(test),
-    ),
-    no_std,
-)]
+#![no_std]
 
 //! # UniCase
 //!
@@ -52,17 +46,14 @@
 #[cfg(feature = "nightly")]
 extern crate test;
 
-#[cfg(all(__unicase__core_and_alloc, not(test)))]
-extern crate alloc;
-#[cfg(all(__unicase__core_and_alloc, not(test)))]
-use alloc::string::String;
+#[cfg(any(feature = "std", test))]
+extern crate std;
 
-#[cfg(not(all(__unicase__core_and_alloc, not(test))))]
-extern crate std as alloc;
-#[cfg(not(all(__unicase__core_and_alloc, not(test))))]
-extern crate std as core;
+#[cfg(any(feature = "std", test))]
+use std::borrow::Cow;
+#[cfg(any(feature = "std", test))]
+use std::string::String;
 
-use alloc::borrow::Cow;
 #[cfg(__unicase__iter_cmp)]
 use core::cmp::Ordering;
 use core::fmt;
@@ -135,7 +126,7 @@ impl<S: AsRef<str>> UniCase<S> {
     ///
     /// Note: This scans the text to determine if it is all ASCII or not.
     pub fn new(s: S) -> UniCase<S> {
-        #[cfg(not(__unicase__core_and_alloc))]
+        #[cfg(feature = "std")]
         #[allow(deprecated, unused)]
         use std::ascii::AsciiExt;
 
@@ -262,6 +253,7 @@ impl<S> From<Ascii<S>> for UniCase<S> {
     }
 }
 
+#[cfg(any(feature = "std", test))]
 macro_rules! from_impl {
     ($from:ty => $to:ty; $by:ident) => (
         impl<'a> From<$from> for UniCase<$to> {
@@ -289,14 +281,21 @@ impl<S: AsRef<str>> From<S> for UniCase<S> {
     }
 }
 
+#[cfg(any(feature = "std", test))]
 from_impl!(&'a str => Cow<'a, str>);
+#[cfg(any(feature = "std", test))]
 from_impl!(String => Cow<'a, str>);
+#[cfg(any(feature = "std", test))]
 from_impl!(&'a str => String);
+#[cfg(any(feature = "std", test))]
 from_impl!(Cow<'a, str> => String; into_owned);
+#[cfg(any(feature = "std", test))]
 from_impl!(&'a String => &'a str; as_ref);
 
 into_impl!(&'a str);
+#[cfg(any(feature = "std", test))]
 into_impl!(String);
+#[cfg(any(feature = "std", test))]
 into_impl!(Cow<'a, str>);
 
 #[cfg(__unicase__iter_cmp)]
@@ -332,11 +331,13 @@ impl<S: FromStr + AsRef<str>> FromStr for UniCase<S> {
 #[cfg(test)]
 mod tests {
     use super::UniCase;
+    use std::borrow::ToOwned;
     use std::hash::{Hash, Hasher};
     #[cfg(not(__unicase__default_hasher))]
     use std::hash::SipHasher as DefaultHasher;
     #[cfg(__unicase__default_hasher)]
     use std::collections::hash_map::DefaultHasher;
+    use std::string::String;
 
     fn hash<T: Hash>(t: &T) -> u64 {
         let mut s = DefaultHasher::new();

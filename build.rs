@@ -12,10 +12,6 @@ fn main() {
     if is_rustc_at_least("1.31.0") {
         println!("cargo:rustc-cfg=__unicase__const_fns");
     }
-
-    if is_rustc_at_least("1.36.0") {
-        println!("cargo:rustc-cfg=__unicase__core_and_alloc");
-    }
 }
 
 fn is_rustc_at_least(v: &str) -> bool {

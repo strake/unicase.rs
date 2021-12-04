@@ -1,11 +1,12 @@
-use alloc::string::String;
+#[cfg(feature = "std")]
+use std::string::String;
 #[cfg(__unicase__iter_cmp)]
 use core::cmp::Ordering;
 use core::fmt;
 use core::hash::{Hash, Hasher};
 use core::ops::{Deref, DerefMut};
 use core::str::FromStr;
-#[cfg(not(__unicase__core_and_alloc))]
+#[cfg(feature = "std")]
 #[allow(deprecated, unused)]
 use std::ascii::AsciiExt;
 
@@ -91,6 +92,7 @@ impl<S: fmt::Display> fmt::Display for Ascii<S> {
     }
 }
 
+#[cfg(feature = "std")]
 impl<S1: AsRef<str>> PartialEq<Ascii<S1>> for String {
     #[inline]
     fn eq(&self, other: &Ascii<S1>) -> bool {
@@ -138,6 +140,7 @@ mod tests {
     use std::hash::SipHasher as DefaultHasher;
     #[cfg(__unicase__default_hasher)]
     use std::collections::hash_map::DefaultHasher;
+    use std::string::String;
 
     fn hash<T: Hash>(t: &T) -> u64 {
         let mut s = DefaultHasher::new();

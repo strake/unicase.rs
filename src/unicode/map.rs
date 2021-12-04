@@ -1982,6 +1982,8 @@ fn lookup_consistency() {
         };
         Fold::One( char::from_u32(single_char).unwrap() )
     }
+
+    use std::vec::Vec;
     
     for c_index in 0..126217 {
         if let Some(c) = char::from_u32(c_index) {
